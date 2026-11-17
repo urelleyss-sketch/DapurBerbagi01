@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DapurBerbagi - Berbagi Makanan & Selamatkan Pangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-emerald-200 selection:text-emerald-900">
+
+    <!-- ONBOARDING / LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-50 bg-emerald-950/90 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-7 border border-emerald-100 overflow-y-auto max-h-[92vh]">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/30">
+                    <i class="fa-solid fa-utensils text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">DapurBerbagi</h1>
+                <p class="text-xs text-slate-500 mt-1">Ekosistem Berbagi Pangan Tetangga & Pelacak Kulkas Pintar</p>
+            </div>
+
+            <form id="onboarding-form" onsubmit="handleUserLogin(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Warga / Pengguna</label>
+                    <input type="text" id="login-name" required placeholder="Contoh: Ibu Siti Aminah" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Nomor WhatsApp Aktif</label>
+                    <input type="tel" id="login-phone" required placeholder="Contoh: 081234567890" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                </div>
+
+                <div class="grid grid-cols-1 gap-3 pt-1">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Kabupaten / Kota</label>
+                        <select id="login-kab" onchange="updateKecamatanDropdown()" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm bg-white">
+                            <option value="">-- Pilih Kabupaten / Kota --</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Kecamatan</label>
+                            <select id="login-kec" onchange="updateDesaDropdown()" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm bg-white">
+                                <option value="">-- Pilih Kec. --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Desa / Kelurahan</label>
+                            <select id="login-desa" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm bg-white">
+                                <option value="">-- Pilih Desa --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Lingkungan RT / RW</label>
+                        <input type="text" id="login-rt" required placeholder="Contoh: RT 02 / RW 01" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition text-sm mt-2">
+                    Masuk ke Komunitas <i class="fa-solid fa-arrow-right ml-1.5"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN MOBILE SHELL -->
+    <div id="app-container" class="max-w-md mx-auto min-h-screen bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200/70">
+
+        <!-- TOP BAR -->
+        <header class="bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-30 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
+                    <i class="fa-solid fa-utensils text-sm"></i>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="font-extrabold text-slate-900 text-sm leading-tight">DapurBerbagi</h2>
+                    <p id="user-location-badge" class="text-[11px] text-emerald-600 font-semibold truncate">Memuat wilayah...</p>
+                </div>
+            </div>
+            <button onclick="switchTab('voucher')" class="flex items-center space-x-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-full text-amber-800 text-xs font-bold transition shrink-0">
+                <i class="fa-solid fa-coins text-amber-500"></i>
+                <span id="header-points">0 Poin</span>
+            </button>
+        </header>
+
+        <!-- MAIN SCROLLABLE AREA -->
+        <main class="flex-1 pb-24 overflow-y-auto">
+
+            <!-- TAB 1: BERBAGI TETANGGA -->
+            <section id="tab-sharing" class="p-4 space-y-4">
+                <div class="bg-gradient-to-br from-emerald-600 via-emerald-600 to-teal-700 p-4 rounded-2xl text-white shadow-lg shadow-emerald-600/20 flex items-center justify-between">
+                    <div class="pr-2">
+                        <span class="inline-block text-[10px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full mb-1">Zero Food Waste</span>
+                        <h3 class="font-bold text-base leading-snug">Berbagi Makanan Tetangga</h3>
+                        <p id="feed-location-subtitle" class="text-[11px] text-emerald-100 mt-0.5">Menampilkan wilayah aktifmu</p>
+                    </div>
+                    <button onclick="openShareModal()" class="bg-white text-emerald-700 hover:bg-emerald-50 px-3.5 py-2.5 rounded-xl text-xs font-extrabold shadow-md transition flex items-center space-x-1.5 shrink-0">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Bagikan</span>
+                    </button>
+                </div>
+
+                <!-- Filter Kategori -->
+                <div id="category-filter-bar" class="flex space-x-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+                    <button onclick="filterSharingCategory('Semua')" class="sharing-cat-btn px-3.5 py-1.5 rounded-full font-bold bg-emerald-600 text-white whitespace-nowrap shadow-sm">Semua</button>
+                    <button onclick="filterSharingCategory('Sayuran')" class="sharing-cat-btn px-3.5 py-1.5 rounded-full font-semibold bg-white text-slate-600 border border-slate-200 whitespace-nowrap">Sayuran</button>
+                    <button onclick="filterSharingCategory('Lauk Pauk')" class="sharing-cat-btn px-3.5 py-1.5 rounded-full font-semibold bg-white text-slate-600 border border-slate-200 whitespace-nowrap">Lauk Pauk</button>
+                    <button onclick="filterSharingCategory('Buah')" class="sharing-cat-btn px-3.5 py-1.5 rounded-full font-semibold bg-white text-slate-600 border border-slate-200 whitespace-nowrap">Buah</button>
+                    <button onclick="filterSharingCategory('Makanan Matang')" class="sharing-cat-btn px-3.5 py-1.5 rounded-full font-semibold bg-white text-slate-600 border border-slate-200 whitespace-nowrap">Makanan Matang</button>
+                    <button onclick="filterSharingCategory('Bumbu')" class="sharing-cat-btn px-3.5 py-1.5 rounded-full font-semibold bg-white text-slate-600 border border-slate-200 whitespace-nowrap">Bumbu</button>
+                </div>
+
+                <!-- Etalase Makanan -->
+                <div id="sharing-feed-list" class="space-y-3.5"></div>
+            </section>
+
+            <!-- TAB 2: PELACAK KULKAS & RESEP -->
+            <section id="tab-pantry" class="p-4 space-y-4 hidden">
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Pelacak Stok Kulkas</h3>
+                            <p class="text-[11px] text-slate-500">Pantau bahan agar tidak terbuang sia-sia</p>
+                        </div>
+                        <button onclick="openAddPantryModal()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl shadow-sm transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah
+                        </button>
+                    </div>
+                    <div id="pantry-items-list" class="grid grid-cols-2 gap-2.5"></div>
+                </div>
+
+                <!-- Rekomendasi Resep -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm">Resep Nusantara & Internasional</h3>
+                        <p class="text-[11px] text-slate-500">Cari ide masakan sesuai bahan yang ada di kulkasmu</p>
+                    </div>
+
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="recipe-main-ingredient-search" list="common-ingredients-list" placeholder="Cari bahan utama (cth: Kentang, Ayam, Tepung)..." oninput="renderRecipesList()" class="w-full pl-8 pr-8 py-2 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <button onclick="resetRecipeFilter()" title="Reset pencarian" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 text-xs">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+                        <datalist id="common-ingredients-list"></datalist>
+                    </div>
+
+                    <div id="recipes-list" class="space-y-2.5"></div>
+                </div>
+            </section>
+
+            <!-- TAB 3: DOMPET VOUCHER -->
+            <section id="tab-voucher" class="p-4 space-y-4 hidden">
+                <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-2xl text-white shadow-lg shadow-amber-500/20 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-xs text-amber-100 font-semibold">Saldo Poin Pahlawan Pangan</p>
+                        <h2 id="voucher-points-display" class="text-3xl font-extrabold mt-1">0 Poin</h2>
+                        <p class="text-[11px] text-amber-50 mt-2 leading-relaxed">Tukarkan poin hasil berbagi atau menyelamatkan makanan tetangga menjadi voucher belanja di Mitra UMKM lokal.</p>
+                    </div>
+                    <i class="fa-solid fa-award text-7xl text-white/15 absolute -right-2 -bottom-2"></i>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm mb-2.5">Katalog Voucher UMKM</h3>
+                    <div id="voucher-list" class="space-y-2.5"></div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm mb-2.5">Voucher Saya (Siap Pakai)</h3>
+                    <div id="owned-voucher-list" class="space-y-2"></div>
+                </div>
+            </section>
+
+            <!-- TAB 4: MITRA UMKM & DAMPAK -->
+            <section id="tab-umkm" class="p-4 space-y-4 hidden">
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-3.5">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-store text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm">Jaringan Mitra UMKM Lokal</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Kolaborasi warung & toko warga untuk menekan limbah makanan.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-emerald-600 text-white p-3.5 rounded-2xl shadow-sm">
+                        <p class="text-[10px] uppercase tracking-wider text-emerald-100 font-bold">Pangan Diselamatkan</p>
+                        <h4 id="stat-saved-food" class="text-2xl font-extrabold mt-1">0.0 kg</h4>
+                    </div>
+                    <div class="bg-teal-700 text-white p-3.5 rounded-2xl shadow-sm">
+                        <p class="text-[10px] uppercase tracking-wider text-teal-100 font-bold">Aksi Berbagi</p>
+                        <h4 id="stat-shared-count" class="text-2xl font-extrabold mt-1">0 Paket</h4>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm mb-2.5">Daftar Mitra Terdaftar</h3>
+                    <div id="umkm-list" class="space-y-2.5"></div>
+                </div>
+            </section>
+
+            <!-- TAB 5: PROFIL WARGA -->
+            <section id="tab-profile" class="p-4 space-y-4 hidden">
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm text-center">
+                    <div id="profile-initials" class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-full flex items-center justify-center text-2xl font-extrabold mx-auto mb-2.5 shadow-md">W</div>
+                    <h3 id="profile-name" class="font-bold text-slate-900 text-base">Warga</h3>
+                    <p id="profile-phone" class="text-xs text-slate-500 mt-0.5">-</p>
+                    <div class="mt-2.5 inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold">
+                        <i class="fa-solid fa-location-dot mr-1.5"></i>
+                        <span id="profile-address">-</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                    <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Ubah Wilayah Domisili</h4>
+                    <form onsubmit="updateUserProfileLocation(event)" class="space-y-2.5">
+                        <select id="profile-kab" onchange="updateProfileKecamatan()" required class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white">
+                            <option value="">-- Pilih Kabupaten / Kota --</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="profile-kec" onchange="updateProfileDesa()" required class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white">
+                                <option value="">-- Kecamatan --</option>
+                            </select>
+                            <select id="profile-desa" required class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white">
+                                <option value="">-- Desa/Kel. --</option>
+                            </select>
+                        </div>
+                        <input type="text" id="profile-rt" required placeholder="RT / RW" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200">
+                        <button type="submit" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition">
+                            Simpan Perubahan Wilayah
+                        </button>
+                    </form>
+                </div>
+
+                <button onclick="resetAppData()" class="w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-2xl border border-rose-200 text-xs transition">
+                    <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Keluar & Reset Data Lokal
+                </button>
+            </section>
+        </main>
+
+        <!-- SHOPEE-STYLE BOTTOM NAVIGATION -->
+        <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-slate-200 py-2 px-2 grid grid-cols-5 items-center z-30 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+            <button onclick="switchTab('sharing')" id="nav-btn-sharing" class="nav-btn flex flex-col items-center text-emerald-600 space-y-0.5">
+                <i class="fa-solid fa-hand-holding-heart text-base"></i>
+                <span class="text-[10px] font-bold">Berbagi</span>
+            </button>
+            <button onclick="switchTab('pantry')" id="nav-btn-pantry" class="nav-btn flex flex-col items-center text-slate-400 space-y-0.5">
+                <i class="fa-solid fa-kitchen-set text-base"></i>
+                <span class="text-[10px] font-medium">Kulkas</span>
+            </button>
+            <button onclick="switchTab('voucher')" id="nav-btn-voucher" class="nav-btn flex flex-col items-center text-slate-400 space-y-0.5">
+                <i class="fa-solid fa-ticket text-base"></i>
+                <span class="text-[10px] font-medium">Voucher</span>
+            </button>
+            <button onclick="switchTab('umkm')" id="nav-btn-umkm" class="nav-btn flex flex-col items-center text-slate-400 space-y-0.5">
+                <i class="fa-solid fa-store text-base"></i>
+                <span class="text-[10px] font-medium">UMKM</span>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-btn-profile" class="nav-btn flex flex-col items-center text-slate-400 space-y-0.5">
+                <i class="fa-solid fa-user text-base"></i>
+                <span class="text-[10px] font-medium">Profil</span>
+            </button>
+        </nav>
+
+        <!-- MODAL: BAGIKAN MAKANAN -->
+        <div id="modal-share" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-900 text-base">Bagikan Makanan ke Tetangga</h3>
+                    <button onclick="closeShareModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="share-food-form" onsubmit="handleShareSubmit(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bahan / Makanan</label>
+                        <input type="text" id="share-item-name" required placeholder="Contoh: Sayur Bayam / Ayam Ungkep" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kategori</label>
+                            <select id="share-item-category" required class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 bg-white">
+                                <option value="Sayuran">Sayuran</option>
+                                <option value="Lauk Pauk">Lauk Pauk</option>
+                                <option value="Buah">Buah</option>
+                                <option value="Makanan Matang">Makanan Matang</option>
+                                <option value="Bumbu">Bumbu</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah / Porsi</label>
+                            <input type="text" id="share-item-qty" required placeholder="Cth: 2 Ikat / 3 Porsi" class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Kondisi Makanan</label>
+                        <input type="text" id="share-item-condition" required placeholder="Cth: Baru dipetik pagi ini, masih segar" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Foto Makanan (Opsional)</label>
+                        <input type="file" id="share-item-photo" accept="image/*" onchange="previewSharePhoto(event)" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700">
+                        <img id="share-photo-preview" src="" alt="Pratinjau" referrerpolicy="no-referrer" class="hidden mt-2 w-full h-36 object-cover rounded-xl border border-slate-200">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/30 transition mt-2">
+                        Posting Sekarang (+15 Poin)
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL: TAMBAH STOK KULKAS -->
+        <div id="modal-pantry" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-900 text-base">Tambah Stok Bahan Kulkas</h3>
+                    <button onclick="closeAddPantryModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="pantry-form" onsubmit="handlePantrySubmit(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bahan</label>
+                        <input type="text" id="pantry-name" required placeholder="Cth: Kentang, Ayam, Telur, Tepung" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kategori</label>
+                            <select id="pantry-category" required class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 bg-white">
+                                <option value="Sayuran">Sayuran</option>
+                                <option value="Lauk Pauk">Lauk Pauk</option>
+                                <option value="Buah">Buah</option>
+                                <option value="Makanan Matang">Makanan Matang</option>
+                                <option value="Bumbu">Bumbu</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah</label>
+                            <input type="text" id="pantry-qty" required placeholder="Cth: 500 gr / 4 butir" class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Estimasi Tahan (Hari)</label>
+                        <input type="number" id="pantry-days" min="1" max="60" value="4" required class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/30 transition">
+                        Simpan ke Kulkas
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL: DETAIL RESEP -->
+        <div id="modal-recipe-detail" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <span id="modal-recipe-badge" class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full">Resep</span>
+                        <h3 id="modal-recipe-title" class="font-bold text-slate-900 text-base mt-1">Judul Resep</h3>
+                    </div>
+                    <button onclick="closeRecipeModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 shrink-0">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <img id="modal-recipe-img" src="" alt="Foto Resep" referrerpolicy="no-referrer" onerror="handleFoodImageError(this, 'Makanan Matang')" class="w-full h-44 object-cover rounded-2xl mb-4 bg-slate-100">
+                <div class="space-y-3.5 text-xs">
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-1.5">Bahan yang Diperlukan</h4>
+                        <ul id="modal-recipe-ingredients" class="list-disc list-inside text-slate-600 space-y-1"></ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-1.5">Cara Memasak</h4>
+                        <ol id="modal-recipe-steps" class="list-decimal list-inside text-slate-600 space-y-2 leading-relaxed"></ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
